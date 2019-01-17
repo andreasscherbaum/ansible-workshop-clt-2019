@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ansible Workshop f&uuml;r die Chemnitzer Linux-Tage 2018</title>
+    <title>Ansible Workshop f&uuml;r die Chemnitzer Linux-Tage 2019</title>
     <meta charset="utf-8">
 </head>
 
 <body>
-    <h1>Ansible Workshop f&uuml;r die Chemnitzer Linux-Tage 2018</h1>
+    <h1>Ansible Workshop f&uuml;r die Chemnitzer Linux-Tage 2019</h1>
     <p>
         <ul>
             <li><a href="database.php">Datenbank Test</li>

@@ -18,6 +18,6 @@
       from: clt_ansible@domov.de
       to: "{{ item }}"
       charset: utf8
-      subject: "CLT 2018 Ansible Workshop - Vorbereitungen"
+      subject: "CLT 2019 Ansible Workshop - Vorbereitungen"
       body: "{{lookup('file', 'prereq_mail.txt')}}"
     with_items: "{{ attendees }}"

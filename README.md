@@ -1,10 +1,10 @@
-# ansible-workshop-clt-2018
+# ansible-workshop-clt-2019
 
-Ansible Workshop für die Chemnitzer Linux-Tage 2018
+Ansible Workshop für die Chemnitzer Linux-Tage 2019
 
 ## Inhalt
 
-Dieses Repository enthält die Slides und Übungen für einen [Ansible](https://www.ansible.com/) Workshop während der Chemnitzer Linux-Tage 2018.
+Dieses Repository enthält die Slides und Übungen für einen [Ansible](https://www.ansible.com/) Workshop während der Chemnitzer Linux-Tage 2019.
 
 ## Vortragende
 
@@ -14,7 +14,7 @@ Dieses Repository enthält die Slides und Übungen für einen [Ansible](https://
 
 ## Anmeldung
 
-https://chemnitzer.linux-tage.de/2018/en/programm/beitrag/145
+Kommt ...
 
 ## Vorkenntnisse
 
@@ -32,13 +32,13 @@ https://chemnitzer.linux-tage.de/2018/en/programm/beitrag/145
 
 * Clone des Git Repos:
     ```console
-    git clone https://github.com/andreasscherbaum/ansible-workshop-clt-2018
+    git clone https://github.com/andreasscherbaum/ansible-workshop-clt-2019
     ```
 * Wechsel in das Repo:
     ```console
-    cd ansible-workshop-clt-2018
+    cd ansible-workshop-clt-2019
     ```
-* Speichern der drei Dateien `ansible.cfg`, `inventory` und `key.pem` aus der Email mit den Zugangsdaten in das Verzeichnis `ansible-workshop-clt-2018`
+* Speichern der drei Dateien `ansible.cfg`, `inventory` und `key.pem` aus der Email mit den Zugangsdaten in das Verzeichnis `ansible-workshop-clt-2019`
 * Anpassen der Permissions für `key.pem`:
     ```console
     chmod 0600 key.pem
@@ -48,9 +48,9 @@ https://chemnitzer.linux-tage.de/2018/en/programm/beitrag/145
     export ANSIBLE_CONFIG=$(pwd)
     ```
 
-## Nach den Chemnitzer Linux-Tagen 2018
+## Nach den Chemnitzer Linux-Tagen 2019
 
-Die Übungen in diesem Workshop kann man auch unabhängig vom CLT 2018 in Chemnitz nutzen. Allerdings muss man dafür seine eigene Umgebung mit zwei Servern (zum Beispiel virtuellen Maschinen) aufsetzen. Auf beiden Maschinen wird Debian oder Ubuntu vorausgesetzt, außerdem muss der verwendete Unix-User "sudo"-Rechte haben. Folgende Dateien werden benötigt:
+Die Übungen in diesem Workshop kann man auch unabhängig vom CLT 2019 in Chemnitz nutzen. Allerdings muss man dafür seine eigene Umgebung mit zwei Servern (zum Beispiel virtuellen Maschinen) aufsetzen. Auf beiden Maschinen wird Debian oder Ubuntu vorausgesetzt, außerdem muss der verwendete Unix-User "sudo"-Rechte haben. Folgende Dateien werden benötigt:
 
 ### `ansible.cfg`
 
