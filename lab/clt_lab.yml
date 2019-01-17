@@ -1,0 +1,100 @@
+---
+
+- name: setup CLT lab environment
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    ami: ami-97e953f8
+    subnet_id: subnet-f10939bb
+    attendee_prefix: attendee_
+
+  tasks:
+
+  - name: include aws credentials
+    include_vars:
+      file: awscreds.yml
+
+  - name: include attendees
+    include_vars:
+      file: attendees.yml
+
+  - name: create local dirs
+    file:
+      path: "./{{ attendee_prefix }}{{ item }}"
+      state: directory
+    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
+
+  - name: template ansible.cfg
+    template:
+      src: ansible.cfg.j2
+      dest: "./{{ attendee_prefix }}{{ item }}/ansible.cfg"
+    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
+
+  - name: create ec2 key pairs
+    ec2_key:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ region }}"
+      name: "{{ attendee_prefix }}{{ item }}"
+    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
+    register: ec2_keys
+
+  - name: save private keys
+    copy:
+      content: "{{ item.key.private_key }}" 
+      dest: "./{{ item.key.name }}/key.pem"
+      mode: 0600
+    when: item.changed
+    with_items: "{{ ec2_keys.results }}"
+
+  - name: create security group
+    ec2_group:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ region }}"
+      name: clt_lab
+      description: security group for CLT ansible workshop lab
+      rules:
+        - proto: all
+          cidr_ip: 0.0.0.0/0
+
+  - name: create ec2 instances
+    ec2:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ region }}"
+      image: "{{ ami }}"
+      instance_type: t2.nano
+      assign_public_ip: yes
+      exact_count: 2
+      count_tag:
+        Name: "{{ item.key.name }}"
+      instance_tags:
+        Name: "{{ item.key.name }}"
+        Owner: "{{ attendees[item.item | int] }}"
+      key_name: "{{ item.key.name }}"
+      user_data: "{{lookup('file', 'user_data.sh')}}"
+      vpc_subnet_id: "{{ subnet_id }}"
+      group: clt_lab
+      wait: yes
+    with_items: "{{ ec2_keys.results }}"
+    register: ec2_instances
+
+  - name: template inventories
+    template:
+      src: inventory.j2
+      dest: "./{{ item.tagged_instances[0].tags.Name }}/inventory"
+    when: item.changed
+    with_items: "{{ ec2_instances.results }}"
+
+  - name: send email
+    mail:
+      from: clt_ansible@domov.de
+      to: "{{ item.tagged_instances[0].tags.Owner }}"
+      charset: utf8
+      subject: "CLT 2018 Ansible Workshop"
+      body: "{{lookup('file', 'creds_mail.txt')}}"
+      attach: "./{{ item.tagged_instances[0].tags.Name }}/inventory ./{{ item.tagged_instances[0].tags.Name }}/key.pem ./{{ item.tagged_instances[0].tags.Name }}/ansible.cfg"
+    when: item.changed
+    with_items: "{{ ec2_instances.results }}"
