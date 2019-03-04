@@ -62,10 +62,12 @@
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ region }}"
       name: clt_lab
-      description: security group for CLT ansible workshop lab
+      description: Security group for CLT Ansible workshop lab
+      vpc_id: "{{ vpc_id }}"
       rules:
         - proto: all
           cidr_ip: 0.0.0.0/0
+    register: ec2_group
 
   - name: create ec2 instances
     ec2:
