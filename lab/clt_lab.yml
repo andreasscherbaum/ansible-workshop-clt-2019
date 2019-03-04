@@ -105,7 +105,7 @@
       from: "Andreas Scherbaum <ads@wars-nicht.de>"
       to: "{{ item.tagged_instances[0].tags.Owner }}"
       charset: utf8
-      subject: "CLT 2019 Ansible Workshop"
+      subject: "CLT 2019 Ansible Workshop - Zugangsdaten"
       body: "{{lookup('file', 'creds_mail.txt')}}"
       attach: "./{{ item.tagged_instances[0].tags.Name }}/inventory ./{{ item.tagged_instances[0].tags.Name }}/key.pem ./{{ item.tagged_instances[0].tags.Name }}/ansible.cfg"
     when: item.changed
