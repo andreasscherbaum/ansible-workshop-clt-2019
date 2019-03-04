@@ -102,7 +102,7 @@
 
   - name: send email
     mail:
-      from: clt_ansible@domov.de
+      from: "Andreas Scherbaum <ads@wars-nicht.de>"
       to: "{{ item.tagged_instances[0].tags.Owner }}"
       charset: utf8
       subject: "CLT 2019 Ansible Workshop"
