@@ -5,8 +5,10 @@
   gather_facts: false
 
   vars:
-    ami: ami-97e953f8
-    subnet_id: subnet-f10939bb
+    #ami: ami-97e953f8
+    ami: ami-0fd6ae70f37b35dce
+    subnet_id: subnet-0f7b977aafa1d1f34
+    vpc_id: vpc-01bf86f0c05fd2485
     attendee_prefix: attendee_
 
   tasks:
