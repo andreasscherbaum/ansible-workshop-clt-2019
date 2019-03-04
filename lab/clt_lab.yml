@@ -97,7 +97,7 @@
     template:
       src: inventory.j2
       dest: "./{{ item.tagged_instances[0].tags.Name }}/inventory"
-    when: item.changed
+    #when: item.changed
     with_items: "{{ ec2_instances.results }}"
 
   - name: send email
