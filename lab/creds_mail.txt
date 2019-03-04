@@ -1,3 +1,4 @@
+
 Hallo,
 
 mit dieser Email erhältst Du die notwendigen Zugangsdaten und Konfigurationsdateien für den Workshop "Server mit Ansible verwalten" beim CLT 2019!
@@ -17,4 +18,4 @@ Für den reibungslosen Start in den Workshop führe nun bitte noch im ausgecheck
 
 Dann müsste alles startklar sein und ein 'ansible -m ping all' sollte fröhliche 'pong' zurückgeben.
 
-Viel Spaß beim Workshop wünschen Dir Andreas, Andreas & Jens!
+Viel Spaß beim Workshop wünschen Dir Jens & Andreas!
