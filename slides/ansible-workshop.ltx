@@ -177,11 +177,11 @@ verwaltet über Ansible
   Dateien:
   \begin{exampleblock}{hosts}
     \texttt{192.168.23.42}\\
-    \texttt{clt.18.example.org}
+    \texttt{clt.19.example.org}
 
     \texttt{[web]}\\
     \texttt{192.168.17.189}\\
-    \texttt{clt.18.example.org}
+    \texttt{clt.19.example.org}
   \end{exampleblock}
 \end{frame}
 
@@ -191,11 +191,11 @@ verwaltet über Ansible
   Das Inventory kann im INI"=Format vorliegen \only<3>{oder als YAML"=Datei:}
   \only<2>{  \begin{exampleblock}{hosts als INI}
     \texttt{192.168.23.42}\\
-    \texttt{clt.18.example.org}
+    \texttt{clt.19.example.org}
 
     \texttt{[web]}\\
     \texttt{192.168.17.189}\\
-    \texttt{clt.18.example.org}
+    \texttt{clt.19.example.org}
   \end{exampleblock}}
 
 \begin{onlyenv}<3>
@@ -204,10 +204,10 @@ verwaltet über Ansible
 all:
   hosts:
     192.168.23.42
-    clt.18.example.org
+    clt.19.example.org
   children:
     web:
-      clt.18.example.org:
+      clt.19.example.org:
 \end{lstlisting}
   \end{exampleblock}
 \end{onlyenv}
@@ -365,7 +365,7 @@ all:
   - name: Shell installieren
     apt: name=fish
   - name: Nutzer anlegen
-    user: name=clt18 state=present shell=/usr/bin/fish
+    user: name=clt19 state=present shell=/usr/bin/fish
 \end{lstlisting}
   \end{exampleblock}
 \end{frame}
