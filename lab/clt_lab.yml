@@ -107,6 +107,16 @@
       charset: utf8
       subject: "CLT 2019 Ansible Workshop - Zugangsdaten"
       body: "{{lookup('file', 'creds_mail.txt')}}"
-      attach: "./{{ item.tagged_instances[0].tags.Name }}/inventory ./{{ item.tagged_instances[0].tags.Name }}/key.pem ./{{ item.tagged_instances[0].tags.Name }}/ansible.cfg"
-    when: item.changed
+      attach: [ "{{ playbook_dir }}/{{ item.tagged_instances[0].tags.Name }}/inventory",  "{{ playbook_dir }}/{{ item.tagged_instances[0].tags.Name }}/key.pem", "{{ playbook_dir }}/{{ item.tagged_instances[0].tags.Name }}/ansible.cfg" ]
+    #when: item.changed and lookup('first_found', playbook_dir + '/' + item.tagged_instances[0].tags.Name + '/mailsent.txt')
+    #when: lookup('first_found', playbook_dir + '/' + item.tagged_instances[0].tags.Name + '/mailsent.txt', skip = true)
+    when: not lookup('first_found', dict(files = [ playbook_dir + '/' + item.tagged_instances[0].tags.Name + '/mailsent.txt' ], skip = true))
+    with_items: "{{ ec2_instances.results }}"
+
+  - name: mark email as sent
+    local_action:
+      module: copy
+      content: "Email was sent"
+      dest: "{{ playbook_dir }}/{{ item.tagged_instances[0].tags.Name }}/mailsent.txt"
+      mode: 0600
     with_items: "{{ ec2_instances.results }}"
