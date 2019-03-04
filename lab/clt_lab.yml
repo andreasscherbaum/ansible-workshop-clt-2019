@@ -75,7 +75,8 @@
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ region }}"
       image: "{{ ami }}"
-      instance_type: t2.nano
+      #instance_type: t2.nano
+      instance_type: t2.micro
       assign_public_ip: yes
       exact_count: 2
       count_tag:
