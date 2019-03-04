@@ -13,6 +13,12 @@
 
   tasks:
 
+  # the EC2 module does not play well with a proxy
+  - name: verify that proxy is not set
+    fail:
+      msg: "$http_proxy is set!"
+    when: lookup('env','http_proxy')|default('') != ""
+
   - name: include aws credentials
     include_vars:
       file: awscreds.yml
