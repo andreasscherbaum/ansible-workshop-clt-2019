@@ -10,11 +10,16 @@ Dieses Repository enthält die Slides und Übungen für einen [Ansible](https://
 
 * Jens Kubieziel (Spezialist für IT-Sicherheit und Datenschutzbeauftragter, [Octopi.Consulting](https://torservers.net/)) / [Homepage](https://kubieziel.de/)
 * Andreas Scherbaum (Principal Software Engineer) / [Homepage](http://andreas.scherbaum.la/)
-* Andreas Krause (Senior Specialist, Zero.One.Data, DB Systel GmbH)
+* ~Andreas Krause (Senior Specialist, Zero.One.Data, DB Systel GmbH)~
 
 ## Anmeldung
 
-Kommt ...
+[Chemnitzer Linux-Tage 2019](https://chemnitzer.linux-tage.de/2019/de/programm/beitrag/130)
+
+
+## Slides
+
+[Slides: Server mit Ansible verwalten](https://github.com/andreasscherbaum/ansible-workshop-clt-2019/blob/master/slides/ansible-workshop.pdf)
 
 ## Vorkenntnisse
 
