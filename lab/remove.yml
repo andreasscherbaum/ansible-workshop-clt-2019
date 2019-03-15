@@ -1,0 +1,129 @@
+---
+
+- name: remove CLT lab environment from AWS
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+
+
+  tasks:
+
+  # the EC2 module does not play well with a proxy
+  - name: verify that proxy is not set
+    fail:
+      msg: "$http_proxy is set!"
+    when: lookup('env','http_proxy')|default('') != ""
+
+  - name: include configuration
+    include_vars:
+      file: configuration.yml
+
+  - name: include aws credentials
+    include_vars:
+      file: awscreds.yml
+
+  - name: include attendees
+    include_vars:
+      file: attendees.yml
+
+
+  # it's complicated to loop over nested variables in Ansible
+  # mainly because "block" does not support loops
+  # the workaround is to include the functionality from a file
+
+  # first make sure that all instances are stopped
+  - name: Shutdown instances in a region
+    include: "shutdown-per-region.yml"
+    loop: "{{ regions }}"
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
+
+  # the proper way would be to scan if any instance is still running
+  - name: Wait for instances to shutdown
+    pause:
+      seconds: 60
+
+  - name: gather VPC facts
+    ec2_vpc_net_facts:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ _region }}"
+      filters:
+        "tag:Name": "{{ vpc_name }}"
+    register: vpcs
+    loop: "{{ regions }}"
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
+  - name: extract VPC information
+    set_fact:
+      vpc_id: "{{ vpc_id | default({}) | combine( { _vpc._ansible_item_label: _vpc.vpcs.0.vpc_id } ) }}"
+    loop: "{{ vpcs.results }}"
+    when: _vpc.vpcs.0 is defined
+    loop_control:
+      loop_var: _vpc
+      label: "{{ _vpc._ansible_item_label }}"
+
+  - name: remove security groups
+    ec2_group:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ _region }}"
+      state: absent
+      name: "{{ security_group_name }}"
+    loop: "{{ regions }}"
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
+  - name: remove Subnets
+    ec2_vpc_subnet:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      cidr: "{{ subnet_cidr }}"
+      vpc_id: "{{ vpc_id[_region] }}"
+      state: absent
+      resource_tags:
+        Name: "{{ subnet_name }}"
+      region: "{{ _region }}"
+    loop: "{{ regions }}"
+    when: vpc_id is defined and vpc_id[_region] is defined
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
+  - name: remove VPCs
+    ec2_vpc_net:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      cidr_block: "{{ vpc_cidr }}"
+      name: "{{ vpc_name }}"
+      region: "{{ _region }}"
+      state: absent
+    loop: "{{ regions }}"
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
+  # this needs to be consistent between creating and removing keys:
+  # the key name is based on the number in the 'attendees' dictionary, and the dict comes with
+  # the region attached - if the list is changed, the key names no longer match
+  - name: remove keys
+    ec2_key:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ attendees[item | int]['region'] }}"
+      name: "{{ attendee_prefix }}{{ item }}"
+      state: absent
+    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
+    register: ec2_keys
+
+  - name: remove local dirs
+    file:
+      path: "./{{ attendee_prefix }}{{ item }}"
+      state: absent
+    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
