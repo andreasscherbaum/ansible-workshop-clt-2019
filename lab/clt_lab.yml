@@ -5,11 +5,7 @@
   gather_facts: false
 
   vars:
-    #ami: ami-97e953f8
-    ami: ami-0fd6ae70f37b35dce
-    subnet_id: subnet-0f7b977aafa1d1f34
-    vpc_id: vpc-01bf86f0c05fd2485
-    attendee_prefix: attendee_
+
 
   tasks:
 
@@ -18,6 +14,10 @@
     fail:
       msg: "$http_proxy is set!"
     when: lookup('env','http_proxy')|default('') != ""
+
+  - name: include configuration
+    include_vars:
+      file: configuration.yml
 
   - name: include aws credentials
     include_vars:
