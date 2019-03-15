@@ -16,7 +16,7 @@
   - name: send email
     mail:
       from: "Andreas Scherbaum <ads@wars-nicht.de>"
-      to: "{{ item }}"
+      to: "{{ item['name'] }}"
       charset: utf8
       subject: "CLT 2019 Ansible Workshop - Vorbereitungen"
       body: "{{lookup('file', 'prereq_mail.txt')}}"
