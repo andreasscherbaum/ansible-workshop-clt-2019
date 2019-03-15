@@ -1,4 +1,8 @@
 ---
+
+# do not change the entries while operating this lab
+# the keys and instances depend on the order of lines in this file
+
 attendees:
   - nak@localhost
   - root@localhost
