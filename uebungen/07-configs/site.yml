@@ -5,10 +5,26 @@
   become: true
   tasks:
 
+    # only works on Debian based systems
+    - name: PHP alternatives path
+      stat:
+        path: /etc/alternatives/php
+        follow: no
+        get_checksum: no
+        get_mime: no
+      register: php_version
+      changed_when: false
+
+
+    - name: PHP version number
+      set_fact:
+        php_version_number: "{{ php_version.stat.lnk_target | realpath | basename | regex_replace('php', '') }}"
+
+
     - name: Configure php.ini
       lineinfile:
         # hardcoded version number
-        dest: /etc/php/7.0/apache2/php.ini
+        dest: "/etc/php/{{ php_version_number }}/apache2/php.ini"
         regexp: "{{ item.regexp }}"
         line: "{{ item.line }}"
         state: "{{ item.state }}"
