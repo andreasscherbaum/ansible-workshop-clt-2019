@@ -6,7 +6,7 @@
     aws_secret_key: "{{ aws_secret_key }}"
     region: "{{ _region }}"
     filters:
-      instance.group-name: "{{ security_group_name }}"
+      instance.group-name: "{{ infra_name }}"
   register: ec2_running_instances
 
 #- debug: msg="{{ ec2_running_instances }}"

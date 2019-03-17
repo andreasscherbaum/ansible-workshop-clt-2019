@@ -52,7 +52,7 @@
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ _region }}"
       filters:
-        "tag:Name": "{{ vpc_name }}"
+        "tag:Name": "{{ infra_name }}"
     register: vpcs
     loop: "{{ regions }}"
     loop_control:
@@ -74,7 +74,7 @@
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ _region }}"
       state: absent
-      name: "{{ security_group_name }}"
+      name: "{{ infra_name }}"
     loop: "{{ regions }}"
     loop_control:
       loop_var: _region
@@ -88,7 +88,7 @@
       vpc_id: "{{ vpc_id[_region] }}"
       state: absent
       resource_tags:
-        Name: "{{ subnet_name }}"
+        Name: "{{ infra_name }}"
       region: "{{ _region }}"
     loop: "{{ regions }}"
     when: vpc_id is defined and vpc_id[_region] is defined
@@ -101,7 +101,7 @@
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       cidr_block: "{{ vpc_cidr }}"
-      name: "{{ vpc_name }}"
+      name: "{{ infra_name }}"
       region: "{{ _region }}"
       state: absent
     loop: "{{ regions }}"

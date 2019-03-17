@@ -53,7 +53,7 @@
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       cidr_block: "{{ vpc_cidr }}"
-      name: "{{ vpc_name }}"
+      name: "{{ infra_name }}"
       region: "{{ _region }}"
     loop: "{{ regions }}"
     loop_control:
@@ -66,7 +66,7 @@
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ _region }}"
       filters:
-        "tag:Name": "{{ vpc_name }}"
+        "tag:Name": "{{ infra_name }}"
     register: vpcs
     loop: "{{ regions }}"
     loop_control:
@@ -90,7 +90,7 @@
       cidr: "{{ subnet_cidr }}"
       vpc_id: "{{ vpc_id[_region] }}"
       resource_tags:
-        Name: "{{ subnet_name }}"
+        Name: "{{ infra_name }}"
       region: "{{ _region }}"
     loop: "{{ regions }}"
     loop_control:
@@ -103,7 +103,7 @@
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ _region }}"
       filters:
-        "tag:Name": "{{ subnet_name }}"
+        "tag:Name": "{{ infra_name }}"
     register: subnets
     loop: "{{ regions }}"
     loop_control:
@@ -170,7 +170,7 @@
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ _region }}"
-      name: "{{ security_group_name }}"
+      name: "{{ infra_name }}"
       description: Security group for CLT Ansible workshop lab
       vpc_id: "{{ vpc_id[_region] }}"
       rules:
@@ -199,7 +199,7 @@
       key_name: "{{ item.key.name }}"
       user_data: "{{lookup('file', 'user_data.sh')}}"
       vpc_subnet_id: "{{ subnet_id[attendees[item.item | int]['region']] }}"
-      group: [ "{{ security_group_name }}" ]
+      group: [ "{{ infra_name }}" ]
       wait: yes
     loop: "{{ ec2_keys.results }}"
     register: ec2_instances

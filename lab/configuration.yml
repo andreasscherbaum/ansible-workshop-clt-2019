@@ -4,8 +4,6 @@ ami_version: "20190307"
 regions: [ "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3" ]
 
 attendee_prefix: attendee_
-vpc_name: "clt_lab"
+infra_name: "clt_lab"
 vpc_cidr: "10.1.0.0/16"
-subnet_name: "clt_lab"
 subnet_cidr: "10.1.0.0/22"
-security_group_name: "clt_lab"
