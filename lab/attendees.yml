@@ -4,11 +4,13 @@
 # the keys and instances depend on the order of lines in this file
 
 attendees:
+
   - { name: "nak@localhost", size: "t2.micro", region: "eu-central-1" }
   - { name: "root@localhost", size: "t2.micro", region: "eu-central-1" }
 
 
 
+# Note: also add the regions to 'regions' in configuration.yml
 
 # eu-central-1 - EU (Frankfurt)
 # eu-west-1 - EU (Ireland)
