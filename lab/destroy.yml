@@ -141,15 +141,10 @@
       loop_var: _region
       label: "{{ _region }}"
 
-#  - fail: msg="Stop"
-
-
-
-
 
   # this needs to be consistent between creating and removing keys:
-  # the key name is based on the number in the 'attendees' dictionary, and the dict comes with
-  # the region attached - if the list is changed, the key names no longer match
+  # only entries listed in the 'attendees' dictionary will be removed
+  # also the region must not change, otherwise keys are not removed in the old region
   - name: remove keys
     ec2_key:
       aws_access_key: "{{ aws_access_key }}"
