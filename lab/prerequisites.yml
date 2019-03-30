@@ -5,9 +5,12 @@
   gather_facts: false
 
   vars:
-    attendee_prefix: attendee_
 
   tasks:
+
+  - name: include configuration
+    include_vars:
+      file: configuration.yml
 
   - name: include attendees
     include_vars:
@@ -16,8 +19,11 @@
   - name: send email
     mail:
       from: "Andreas Scherbaum <ads@wars-nicht.de>"
-      to: "{{ item['name'] }}"
+      to: "{{ _attendee['name'] }}"
       charset: utf8
       subject: "CLT 2019 Ansible Workshop - Vorbereitungen"
-      body: "{{lookup('file', 'prereq_mail.txt')}}"
-    with_items: "{{ attendees }}"
+      body: "{{lookup('file', 'templates/prereq_mail.txt')}}"
+    loop: "{{ attendees }}"
+    loop_control:
+      loop_var: _attendee
+      label: "{{ _attendee.id }} - {{ _attendee.name }}"

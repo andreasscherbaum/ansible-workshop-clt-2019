@@ -21,3 +21,8 @@
   loop: "{{ ec2_running_instances.instances }}"
   loop_control:
     label: "{{ item.instance_id }}"
+  register: ec2_shutdown_instances
+
+- set_fact:
+    ec2_instances_running: True
+  when: ec2_shutdown_instances.changed

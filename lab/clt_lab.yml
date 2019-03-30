@@ -120,29 +120,92 @@
 
 #  - debug: msg="{{ subnet_id }}"
 
+  - name: create Internet Gateways
+    ec2_vpc_igw:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ vpc_id[_region] }}"
+      resource_tags:
+        Name: "{{ infra_name }}"
+      region: "{{ _region }}"
+    loop: "{{ regions }}"
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
+  - name: gather Internet Gateway facts
+    ec2_vpc_igw_facts:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ _region }}"
+      filters:
+        "tag:Name": "{{ infra_name }}"
+    register: internet_gateways
+    loop: "{{ regions }}"
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
+  - name: extract Internet Gateway information
+    set_fact:
+      internet_gateway_id: "{{ internet_gateway_id | default({}) | combine( { _internet_gateway._ansible_item_label: _internet_gateway.internet_gateways.0.internet_gateway_id } ) }}"
+    loop: "{{ internet_gateways.results }}"
+    loop_control:
+      loop_var: _internet_gateway
+      label: "{{ _internet_gateway._ansible_item_label }}"
+
+#  - debug: msg="{{ internet_gateway_id }}"
+
+  - name: create Route Table
+    ec2_vpc_route_table:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ vpc_id[_region] }}"
+      tags:
+        Name: "{{ infra_name }}"
+      region: "{{ _region }}"
+      subnets:
+        - "{{ subnet_id[_region] }}"
+      routes:
+        - dest: 0.0.0.0/0
+          gateway_id: "{{ internet_gateway_id[_region] }}"
+    loop: "{{ regions }}"
+    loop_control:
+      loop_var: _region
+      label: "{{ _region }}"
+
   - name: include attendees
     include_vars:
       file: attendees.yml
 
   - name: create local dirs
     file:
-      path: "./{{ attendee_prefix }}{{ item }}"
+      path: "./{{ attendee_prefix }}{{ _attendee.id }}"
       state: directory
-    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
+    loop: "{{ attendees }}"
+    loop_control:
+      loop_var: _attendee
+      label: "{{ _attendee.id }} - {{ _attendee.region }}"
 
   - name: template ansible.cfg
     template:
-      src: ansible.cfg.j2
-      dest: "./{{ attendee_prefix }}{{ item }}/ansible.cfg"
-    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
+      src: templates/ansible.cfg.j2
+      dest: "./{{ attendee_prefix }}{{ _attendee.id }}/ansible.cfg"
+    loop: "{{ attendees }}"
+    loop_control:
+      loop_var: _attendee
+      label: "{{ _attendee.id }} - {{ _attendee.region }}"
 
   - name: create ec2 key pairs
     ec2_key:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      region: "{{ attendees[item | int]['region'] }}"
-      name: "{{ attendee_prefix }}{{ item }}"
-    with_sequence: start=0 end="{{ attendees|length - 1 }}" format="%02d"
+      region: "{{ _attendee.region }}"
+      name: "{{ attendee_prefix }}{{ _attendee.id }}"
+    loop: "{{ attendees }}"
+    loop_control:
+      loop_var: _attendee
+      label: "{{ _attendee.id }} - {{ _attendee.region }}"
     register: ec2_keys
 
   - name: save private keys
@@ -171,7 +234,7 @@
       aws_secret_key: "{{ aws_secret_key }}"
       region: "{{ _region }}"
       name: "{{ infra_name }}"
-      description: Security group for CLT Ansible workshop lab
+      description: "Security group for {{ infra_name }}"
       vpc_id: "{{ vpc_id[_region] }}"
       rules:
         - proto: all
@@ -182,23 +245,25 @@
       loop_var: _region
       label: "{{ _region }}"
 
+  #- debug: msg="{{ ec2_keys }}"
+
   - name: create ec2 instances
     ec2:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      region: "{{ attendees[item.item | int]['region'] }}"
-      image: "{{ ami[attendees[item.item | int]['region']] }}"
-      instance_type: "{{ attendees[item.item | int]['size'] }}"
+      region: "{{ item._attendee.region }}"
+      image: "{{ ami[item._attendee.region] }}"
+      instance_type: "{{ item._attendee.size }}"
       assign_public_ip: yes
       exact_count: 2
       count_tag:
         Name: "{{ item.key.name }}"
       instance_tags:
         Name: "{{ item.key.name }}"
-        Owner: "{{ attendees[item.item | int]['name'] }}"
+        Owner: "{{ item._attendee.name }}"
       key_name: "{{ item.key.name }}"
       user_data: "{{lookup('file', 'user_data.sh')}}"
-      vpc_subnet_id: "{{ subnet_id[attendees[item.item | int]['region']] }}"
+      vpc_subnet_id: "{{ subnet_id[item._attendee.region] }}"
       group: [ "{{ infra_name }}" ]
       wait: yes
     loop: "{{ ec2_keys.results }}"
@@ -208,8 +273,26 @@
 
   - name: template inventories
     template:
-      src: inventory.j2
+      src: templates/inventory.j2
       dest: "./{{ item.tagged_instances[0].tags.Name }}/inventory"
+    loop: "{{ ec2_instances.results }}"
+    loop_control:
+      label: "{{ item._ansible_item_label }}"
+
+  - name: create connect script for db server
+    template:
+      src: templates/connect-db.sh.j2
+      dest: "./{{ item.tagged_instances[0].tags.Name }}/connect-db.sh"
+      mode: 0700
+    loop: "{{ ec2_instances.results }}"
+    loop_control:
+      label: "{{ item._ansible_item_label }}"
+
+  - name: create connect script for webserver
+    template:
+      src: templates/connect-web.sh.j2
+      dest: "./{{ item.tagged_instances[0].tags.Name }}/connect-web.sh"
+      mode: 0700
     loop: "{{ ec2_instances.results }}"
     loop_control:
       label: "{{ item._ansible_item_label }}"
@@ -220,7 +303,7 @@
       to: "{{ item.tagged_instances[0].tags.Owner }}"
       charset: utf8
       subject: "CLT 2019 Ansible Workshop - Zugangsdaten"
-      body: "{{lookup('file', 'creds_mail.txt')}}"
+      body: "{{lookup('file', 'templates/creds_mail.txt')}}"
       attach: [ "{{ playbook_dir }}/{{ item.tagged_instances[0].tags.Name }}/inventory",  "{{ playbook_dir }}/{{ item.tagged_instances[0].tags.Name }}/key.pem", "{{ playbook_dir }}/{{ item.tagged_instances[0].tags.Name }}/ansible.cfg" ]
     when: not lookup('first_found', dict(files = [ playbook_dir + '/' + item.tagged_instances[0].tags.Name + '/mailsent.txt' ], skip = true))
     loop: "{{ ec2_instances.results }}"
