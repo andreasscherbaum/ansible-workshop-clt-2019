@@ -5,8 +5,8 @@
 
 attendees:
 
-  - { name: "nak@localhost", size: "t2.micro", region: "eu-central-1" }
-  - { name: "root@localhost", size: "t2.micro", region: "eu-central-1" }
+  - { id: "00", name: "ads-01@wars-nicht.de", size: "t2.micro", region: "eu-central-1" }
+  - { id: "01", name: "ads-02@wars-nicht.de", size: "t2.micro", region: "eu-central-1" }
 
 
 
